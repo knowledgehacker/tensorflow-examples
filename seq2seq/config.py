@@ -1,0 +1,19 @@
+
+SRC_VOCAB_SIZE = 10000
+TRG_VOCAB_SIZE = 4000
+
+SRC_VOCAB_FILE = 'data/vocab.en'
+TRG_VOCAB_FILE = 'data/vocab.zh'
+
+TRAIN_SRC_PATH = 'data/train.en'
+TRAIN_TRG_PATH = 'data/train.zh'
+
+SOS_IDX = 1
+EOS_IDX = 2
+
+HIDDEN_SIZE = 1024
+NUM_LAYERS = 2
+
+SHARE_EMBED_AND_SOFTMAX = True
+
+BATCH_SIZE = 100
