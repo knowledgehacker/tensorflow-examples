@@ -122,7 +122,8 @@ class Seq2seqModel(object):
             return trg_ids.stack()
 
 
-CKPT_PATH = "ckpt/seq2seq"
+CKPT_DIR = "ckpt"
+CKPT_PATH = "%s/seq2seq" % CKPT_DIR
 
 
 def run_epoch(session, cost_op, train_op, saver, step):
@@ -160,10 +161,12 @@ def train(model):
     step = 0
     with tf.Session(config=cfg) as sess:
         tf.global_variables_initializer().run()
+
         for i in range(NUM_EPOCH):
             print(current_time(), "epoch: %d" % (i + 1))
             sess.run(iterator.initializer)
             step = run_epoch(sess, cost_op, train_op, saver, step)
+        saver.save(sess, CKPT_PATH, global_step=step)
 
     print(current_time(), "training finishes...")
 
@@ -185,7 +188,8 @@ def test(model):
     output_op = model.inference(test_en_ids)
     sess = tf.Session()
     saver = tf.train.Saver()
-    saver.restore(sess, "%s-14000" % CKPT_PATH) # step number maybe changed
+    #saver.restore(sess, "%s-14000" % CKPT_DIR) # step number maybe changed
+    load_model(sess, saver)
 
     # 读取翻译结果。
     output_ids = sess.run(output_op)
@@ -199,6 +203,12 @@ def test(model):
     # 输出翻译结果。
     print(output_text.encode('utf8').decode(sys.stdout.encoding))
     sess.close()
+
+
+def load_model(sess, saver):
+    ckpt_file = tf.train.latest_checkpoint(CKPT_DIR)
+    print("ckpt_file: %s" % ckpt_file)
+    saver.restore(sess, ckpt_file)
 
 
 def main():

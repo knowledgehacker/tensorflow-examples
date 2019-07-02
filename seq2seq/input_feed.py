@@ -46,16 +46,3 @@ def create_dataset(input):
     dataset = dataset.map(lambda indices: (indices, tf.size(indices)))
 
     return dataset
-
-
-'''
-def s2i(words):
-    try:
-        idx = tf.string_to_number(words, tf.int32)
-    #except tf.errors.InvalidArgumentError as e:
-    except:
-        print("words: %s" % words)
-        #print("s2i failed - [%s]" % e)
-
-    return idx
-'''

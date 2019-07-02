@@ -9,7 +9,7 @@ UNKNOWN_SYMBOL = '<unk>'
 START_OF_SEQUENCE = '<sos>'
 END_OF_SEQUENCE = '<eos>'
 
-Lang = Enum('Lang', ('SRC', 'TRG'))
+#Lang = Enum('Lang', ('SRC', 'TRG'))
 
 
 # Build vocabulary
