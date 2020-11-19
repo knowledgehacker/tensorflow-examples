@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import codecs
+
 import collections
 from operator import itemgetter
-import tensorflow as tf
+
+import tensorflow.compat.v1 as tf
+
 import config
 from utils import current_time
 
@@ -13,7 +15,7 @@ def build_vocab(input, vocab_size, vocab_file):
     print(current_time(), "build vocabulary: %s starts..." % vocab_file)
 
     word_count = collections.Counter()
-    with codecs.open(input, 'r', 'utf-8') as f:
+    with open(input, 'r', encoding='utf-8') as f:
         for line in f:
             splits = line.strip().split('\t')
             if len(splits) == 2:
@@ -27,7 +29,7 @@ def build_vocab(input, vocab_size, vocab_file):
     if len(sorted_words) > vocab_size:
         sorted_words = sorted_words[:vocab_size]
 
-    with codecs.open(vocab_file, 'w', 'utf-8') as f:
+    with open(vocab_file, 'w', encoding='utf-8') as f:
         for word in sorted_words:
             f.write(word + '\n')
 
@@ -40,11 +42,11 @@ def build_dataset(input, vocab_file, output):
 
     cate_to_index = build_cate_to_index()
 
-    with codecs.open(vocab_file, 'r', 'utf-8') as f_vocab:
+    with open(vocab_file, 'r', encoding='utf-8') as f_vocab:
         vocab = [w.strip() for w in f_vocab.readlines()]
     word_index = {k: v for (k, v) in zip(vocab, range(len(vocab)))}
 
-    fin = codecs.open(input, 'r', 'utf-8')
+    fin = open(input, 'r', encoding='utf-8')
     writer = tf.python_io.TFRecordWriter(output)
     #writer = tf.python_io.TFRecordWriter(output, options=tf.python_io.TFRecordOptions(tf.python_io.TFRecordCompressionType.GZIP))
     for line in fin:
@@ -56,7 +58,7 @@ def build_dataset(input, vocab_file, output):
             example = tf.train.Example(features=tf.train.Features(
                 feature={
                     'indices': int64_feature(indices),
-                    'label': int64_feature(label),
+                    'label': float_feature(label),
                 }))
             writer.write(example.SerializeToString())
     fin.close
@@ -66,7 +68,7 @@ def build_dataset(input, vocab_file, output):
 
 
 def build_cate_to_index():
-    news_cates = [new_category.decode('utf-8') for new_category in config.NEWS_CATEGORIES]  # 'utf-8'
+    news_cates = [new_category for new_category in config.NEWS_CATEGORIES]  # 'utf-8'
     cate_to_index = dict(zip(news_cates, range(config.NUM_CLASSES)))
 
     return cate_to_index
@@ -85,8 +87,8 @@ def float_feature(value):
 
 
 def one_hot_encode(index, num):
-    ohe = [0 for i in range(num)]
-    ohe[index] = 1
+    ohe = [0.0 for i in range(num)]
+    ohe[index] = 1.0
 
     return ohe
 

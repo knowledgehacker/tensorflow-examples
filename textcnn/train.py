@@ -1,25 +1,32 @@
 # -*- coding: utf-8 -*-
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
 import config
 from input_feed import init_next_batch
 from text_cnn import CNNModel
 from utils import current_time
 
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-CKPT_PATH = '%s/text-classification' % config.CKPT_DIR
+
+CKPT_PATH = '%s/textcnn' % config.CKPT_DIR
 
 
 def run_epoch(session, dropout_keep_prob_ph, acc_op, loss_op, train_op, saver, step):
     while True:
         try:
             acc, loss, _ = session.run([acc_op, loss_op, train_op], feed_dict={dropout_keep_prob_ph: config.TRAIN_KEEP_PROB})
-            if step % 10 == 0:
-                print(current_time(), "step: %d, loss: %.3f, accuracy: %.3f" % (step, loss, acc))
-            if step % 100 == 0:
+            if step % config.STEPS_PER_CKPT == 0:
+                print(current_time(), "step: %d, loss: %.3f, acc: %.3f" % (step, loss, acc))
                 saver.save(session, CKPT_PATH, global_step=step)
+
             step += 1
         except tf.errors.OutOfRangeError:
+            print(current_time(), "step: %d, loss: %.3f, acc: %.3f" % (step, loss, acc))
+            saver.save(session, CKPT_PATH, global_step=step)
+
             break
     return step
 
@@ -34,7 +41,7 @@ def train(model):
     dropout_keep_prob_ph = tf.placeholder(tf.float32, name="dropout_keep_prob")
     # create iterator for train dataset
     dataset_init_op, get_next_op = init_next_batch(config.TRAIN_PATH)
-    content, len, label = get_next_op
+    content, label = get_next_op
 
     logits = model.forward(content, dropout_keep_prob_ph)
     loss_op, train_op = model.opt(logits, label)

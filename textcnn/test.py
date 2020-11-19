@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
 import config
 from input_feed import init_next_batch
 from utils import current_time

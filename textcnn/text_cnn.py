@@ -1,4 +1,5 @@
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
 import config
 
 
@@ -31,7 +32,7 @@ class CNNModel(object):
 
         with tf.variable_scope('fc1'):
             fc = tf.layers.dense(h_pool, config.HIDDEN_SIZE, name='h_pool')
-            fc = tf.contrib.layers.dropout(fc, dropout_keep_prob_ph)
+            fc = tf.nn.dropout(fc, rate=1.0 - dropout_keep_prob_ph)
             fc = tf.nn.relu(fc)
 
         with tf.variable_scope('fc2'):
